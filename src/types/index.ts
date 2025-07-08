@@ -20,7 +20,6 @@ export interface Book {
   context?: string; // Why the book was mentioned
   coverImage?: string;
   isbn?: string;
-  price?: BookPrice;
   dateAdded: string;
 }
 
