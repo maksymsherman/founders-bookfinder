@@ -12,8 +12,5 @@ module.exports = {
         foreground: 'var(--foreground)',
       },
     },
-  },
-  plugins: [
-    require('@tailwindcss/line-clamp'),
-  ],
+  }
 } 
