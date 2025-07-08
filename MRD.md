@@ -35,7 +35,7 @@ This application will:
 - [ ] **Step 1.2: Environment Configuration**
   - Create `.env.local` file for API keys
   - Set up environment variables for:
-    - OpenAI API key (or Claude API key)
+    - Google Gemini API key
     - Google Books API key (optional)
     - Any other required API keys
 
