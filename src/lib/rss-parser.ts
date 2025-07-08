@@ -269,10 +269,13 @@ export class RssParser {
   /**
    * Cleans and sanitizes text content
    */
-  private cleanText(text: string): string {
+  private cleanText(text: any): string {
     if (!text) return '';
     
-    return text
+    // Ensure text is a string
+    const textStr = String(text);
+    
+    return textStr
       .replace(/<[^>]*>/g, '') // Remove HTML tags
       .replace(/\s+/g, ' ') // Normalize whitespace
       .trim();

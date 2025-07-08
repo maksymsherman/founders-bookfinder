@@ -16,7 +16,7 @@ export const config = {
   
   // Rate limiting
   rateLimits: {
-    llmPerMinute: parseInt(process.env.LLM_RATE_LIMIT_PER_MINUTE || '60'),
+    llmPerMinute: parseInt(process.env.LLM_RATE_LIMIT_PER_MINUTE || '4000'), // Updated for Gemini 2.5 Flash Lite
     booksApiPerMinute: parseInt(process.env.BOOKS_API_RATE_LIMIT_PER_MINUTE || '100'),
   },
   
@@ -29,12 +29,13 @@ export const config = {
 export const validateConfig = (): string[] => {
   const errors: string[] = [];
   
-  if (!config.googleGeminiApiKey) {
+  if (!process.env.GOOGLE_GEMINI_API_KEY) {
     errors.push('GOOGLE_GEMINI_API_KEY is required');
   }
   
-  if (!config.googleBooksApiKey) {
-    errors.push('GOOGLE_BOOKS_API_KEY is required');
+  // Google Books API key is optional for now
+  if (!process.env.GOOGLE_BOOKS_API_KEY) {
+    console.log('ℹ️  Google Books API key not set (optional for basic functionality)');
   }
   
   return errors;

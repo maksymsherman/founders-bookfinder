@@ -87,4 +87,33 @@ export interface CacheEntry<T> {
   data: T;
   timestamp: number;
   ttl: number; // Time to live in milliseconds
+}
+
+// LLM Integration types
+export interface LLMTestResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+  details?: any;
+  test?: {
+    prompt: string;
+    response: string;
+    timestamp: string;
+  };
+}
+
+export interface BookExtractionRequest {
+  episodeDescription: string;
+  episodeId?: string;
+}
+
+export interface BookExtractionResult {
+  books: Array<{
+    title: string;
+    author: string;
+    links: string[];
+    context?: string;
+  }>;
+  rawResponse?: string;
+  confidence?: number;
 } 
