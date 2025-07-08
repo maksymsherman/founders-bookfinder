@@ -5,7 +5,7 @@ export const config = {
   googleBooksApiKey: process.env.GOOGLE_BOOKS_API_KEY || '',
   
   // RSS Feed Configuration
-  foundersPodcastRssUrl: process.env.FOUNDERS_PODCAST_RSS_URL || 'https://feeds.megaphone.fm/founders',
+  foundersPodcastRssUrl: process.env.FOUNDERS_PODCAST_RSS_URL || 'https://feeds.megaphone.fm/DSLLC6297708582',
   
   // Cache TTL settings (in milliseconds)
   cache: {

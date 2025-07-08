@@ -29,7 +29,7 @@ export default function Home() {
                   Coming Soon
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300 mb-6">
-                  We're building an intelligent tool that extracts book recommendations from Founders Podcast episodes and provides current pricing information.
+                  We&apos;re building an intelligent tool that extracts book recommendations from Founders Podcast episodes and provides current pricing information.
                 </p>
               </div>
 
