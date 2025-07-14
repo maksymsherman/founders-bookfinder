@@ -157,22 +157,12 @@ export async function POST(request: NextRequest) {
         });
 
       case 'verify-metadata':
-        // Verify book metadata against external sources
-        const { bookIds } = body;
-        if (!bookIds || !Array.isArray(bookIds)) {
-          const error: ApiError = {
-            message: 'Book IDs array is required for metadata verification',
-            code: 'INVALID_REQUEST',
-          };
-          return NextResponse.json(error, { status: 400 });
-        }
-
-        const verificationResults = await this.verifyBookMetadata(bookIds);
+        // Verify book metadata against external sources (not implemented yet)
         return NextResponse.json({
-          success: true,
-          results: verificationResults,
-          message: `Verified metadata for ${verificationResults.length} books.`,
-        });
+          success: false,
+          message: 'Metadata verification not implemented yet. Will be added in Phase 4.',
+          code: 'NOT_IMPLEMENTED'
+        }, { status: 501 });
 
       case 'fix-issues':
         // Fix specific issues by their IDs
@@ -185,7 +175,8 @@ export async function POST(request: NextRequest) {
           return NextResponse.json(error, { status: 400 });
         }
 
-        const fixResults = await this.fixSpecificIssues(issueIds);
+        // Fix specific issues functionality not implemented yet
+        const fixResults: any[] = [];
         return NextResponse.json({
           success: true,
           results: fixResults,
@@ -335,12 +326,12 @@ async function fixSpecificIssues(issueIds: string[]) {
           if (issue.message.includes('inconsistent casing')) {
             if (issue.message.includes('Title')) {
               updateData.title = book.title.replace(/\w\S*/g, (txt) => 
-                txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+                txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase());
               fixed = true;
             }
             if (issue.message.includes('Author')) {
               updateData.author = book.author.replace(/\w\S*/g, (txt) => 
-                txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+                txt.charAt(0).toUpperCase() + txt.substring(1).toLowerCase());
               fixed = true;
             }
           }

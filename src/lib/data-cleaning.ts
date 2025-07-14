@@ -567,7 +567,7 @@ export class DataCleaner {
 
       // Remove duplicate URLs
       if (book.extracted_links && Array.isArray(book.extracted_links)) {
-        const uniqueLinks = [...new Set(book.extracted_links)];
+        const uniqueLinks = Array.from(new Set(book.extracted_links));
         if (uniqueLinks.length !== book.extracted_links.length) {
           updateData.extracted_links = uniqueLinks;
           changes.push(`Removed ${book.extracted_links.length - uniqueLinks.length} duplicate URLs`);

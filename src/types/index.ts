@@ -34,6 +34,7 @@ export interface Book {
   dateAdded: string;
   confidence?: number;
   needsReview?: boolean;
+  price?: BookPrice;
 }
 
 // Book price information
@@ -328,5 +329,174 @@ export interface BulkCleaningResult {
     isbnsCleaned: number;
     urlsFixed: number;
     duplicatesRemoved: number;
+  };
+}
+
+// Enhanced LLM Integration types for Step 5.3
+export interface EnhancedLLMTestResponse extends LLMTestResponse {
+  multiPassCapable?: boolean;
+  contextPreservation?: boolean;
+  confidenceScoring?: boolean;
+}
+
+export interface EnhancedBookExtractionRequest extends BookExtractionRequest {
+  enableMultiPass?: boolean;
+  preserveContext?: boolean;
+  confidenceThreshold?: number;
+}
+
+export interface EnhancedBookExtractionResult extends BookExtractionResult {
+  multiPass?: boolean;
+  processingNotes?: string[];
+  passes?: number;
+  contextPreserved?: string;
+  overallConfidence?: number;
+  extractionMethod?: 'simple' | 'multi-pass';
+}
+
+// Enhanced book extraction metadata
+export interface ExtractionMetadata {
+  extractionMethod: 'simple' | 'multi-pass';
+  processingNotes: string[];
+  llmConfidence?: number;
+  passes: number;
+  contextPreserved?: string;
+  extractionTimestamp: string;
+}
+
+// Enhanced Book interface with extraction metadata
+export interface EnhancedExtractedBook extends Book {
+  extractionMetadata?: ExtractionMetadata;
+  llmConfidence?: number;
+  confidenceFactors?: {
+    titleQuality: number;
+    authorQuality: number;
+    contextQuality: number;
+    linksPresent: number;
+    episodeRelevance?: number;
+  };
+  confidenceReasoning?: string;
+}
+
+// Multi-pass extraction types
+export interface ExtractionPass {
+  passType: 'initial' | 'refinement' | 'validation';
+  books: Array<{
+    title: string;
+    author: string;
+    links: string[];
+    context?: string;
+    confidence?: number;
+    reasoning?: string;
+  }>;
+  contextPreserved: string;
+  confidence: number;
+  processingNotes?: string[];
+}
+
+export interface MultiPassExtractionResult {
+  passes: ExtractionPass[];
+  finalBooks: Array<{
+    title: string;
+    author: string;
+    links: string[];
+    context?: string;
+    confidence?: number;
+    reasoning?: string;
+  }>;
+  overallConfidence: number;
+  processingNotes: string[];
+  episodeComplexity?: 'simple' | 'moderate' | 'complex';
+}
+
+// Enhanced API response types
+export interface EnhancedBooksResponse extends BooksResponse {
+  extractionStats?: {
+    multiPassExtractions: number;
+    simplePassExtractions: number;
+    averageConfidence: number;
+    highConfidenceBooks: number;
+    booksRequiringReview: number;
+  };
+  confidenceDistribution?: {
+    excellent: number; // >= 0.9
+    good: number;      // >= 0.7
+    moderate: number;  // >= 0.5
+    poor: number;      // >= 0.3
+    veryPoor: number;  // < 0.3
+  };
+}
+
+export interface EnhancedBookExtractionResponse {
+  success: boolean;
+  books: EnhancedExtractedBook[];
+  processedEpisodes: number;
+  errors: string[];
+  extractionStats: {
+    multiPassEpisodes: number;
+    simplePassEpisodes: number;
+    averageConfidence: number;
+    booksRequiringReview: number;
+    totalProcessingTime?: number;
+  };
+  contextPreservation?: {
+    episodesWithContext: number;
+    totalContextEntries: number;
+    avgContextLength: number;
+  };
+}
+
+// Confidence scoring types
+export interface ConfidenceFactors {
+  titleQuality: number;
+  authorQuality: number;
+  contextQuality: number;
+  linksPresent: number;
+  llmConfidence?: number;
+  episodeRelevance?: number;
+  extractionMethod?: 'simple' | 'multi-pass';
+}
+
+export interface ConfidenceResult {
+  score: number;
+  factors: ConfidenceFactors;
+  reasoning: string;
+  needsReview: boolean;
+  level: 'Excellent' | 'Good' | 'Moderate' | 'Poor' | 'Very Poor';
+}
+
+// Context preservation types
+export interface EpisodeContext {
+  episodeId: string;
+  preservedContext: string;
+  contextQuality: number;
+  extractionCount: number;
+  lastUpdated: string;
+  relatedEpisodes?: string[];
+}
+
+export interface ContextPreservationStats {
+  totalContexts: number;
+  avgContextLength: number;
+  contextsUsed: number;
+  contextEffectiveness: number; // 0-1 score
+}
+
+// Enhanced extraction configuration
+export interface ExtractionConfig {
+  enableMultiPass: boolean;
+  preserveContext: boolean;
+  confidenceThreshold: number;
+  maxPassesPerEpisode: number;
+  complexityThreshold: number; // Episode description length threshold
+  temperatureSettings: {
+    initial: number;
+    refinement: number;
+    validation: number;
+  };
+  rateLimiting: {
+    requestsPerMinute: number;
+    batchSize: number;
+    delayBetweenBatches: number;
   };
 } 
