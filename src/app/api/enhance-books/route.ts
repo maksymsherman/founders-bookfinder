@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { googleBooksClient } from '@/lib/google-books-client';
 import { Book, EnhancedBook, ApiError } from '@/types';
+import { getCache, setCache } from '@/lib/cache';
+
+const CACHE_TTL = 604800; // 7 days in seconds
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,6 +81,7 @@ export async function GET(request: NextRequest) {
     const title = url.searchParams.get('title');
     const author = url.searchParams.get('author');
     const isbn = url.searchParams.get('isbn');
+    const refresh = url.searchParams.get('refresh') === '1';
     
     if (!googleBooksClient.isConfigured()) {
       const error: ApiError = {
@@ -87,14 +91,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(error, { status: 503 });
     }
 
-    let result;
-    
+    let cacheKey = '';
     if (isbn) {
-      result = await googleBooksClient.searchByISBN(isbn);
+      cacheKey = `meta:isbn:${isbn}`;
     } else if (title && author) {
-      result = await googleBooksClient.searchByTitleAndAuthor(title, author);
+      cacheKey = `meta:title:${title}:author:${author}`;
     } else if (title) {
-      result = await googleBooksClient.searchBooks(title);
+      cacheKey = `meta:title:${title}`;
     } else {
       const error: ApiError = {
         message: 'Please provide either title, author, or isbn parameters',
@@ -103,7 +106,35 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(error, { status: 400 });
     }
 
-    return NextResponse.json(result);
+    if (!refresh) {
+      const cached = await getCache(cacheKey);
+      if (cached) {
+        return NextResponse.json(cached, {
+          headers: {
+            'Cache-Control': `public, max-age=${CACHE_TTL}`,
+            'X-Cache': 'HIT',
+          },
+        });
+      }
+    }
+
+    let result;
+    if (isbn) {
+      result = await googleBooksClient.searchByISBN(isbn);
+    } else if (title && author) {
+      result = await googleBooksClient.searchByTitleAndAuthor(title, author);
+    } else if (title) {
+      result = await googleBooksClient.searchBooks(title);
+    }
+
+    await setCache(cacheKey, result, CACHE_TTL);
+
+    return NextResponse.json(result, {
+      headers: {
+        'Cache-Control': `public, max-age=${CACHE_TTL}`,
+        'X-Cache': 'MISS',
+      },
+    });
 
   } catch (error) {
     console.error('Error searching books:', error);

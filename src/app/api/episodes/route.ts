@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseFoundersRssFeed, RssParserError } from '@/lib/rss-parser';
-import { EpisodesResponse, ApiError, CacheEntry } from '@/types';
+import { EpisodesResponse, ApiError } from '@/types';
 import { config } from '@/lib/config';
+import { getCache, setCache, deleteCache } from '@/lib/cache';
 
-// In-memory cache for episodes (in production, consider Redis or external cache)
-const episodesCache = new Map<string, CacheEntry<EpisodesResponse>>();
-
-const CACHE_KEY = 'founders-episodes';
+const CACHE_KEY = 'rss:feed';
+const CACHE_TTL = 3600; // 1 hour in seconds
 
 /**
  * GET /api/episodes
@@ -14,15 +13,23 @@ const CACHE_KEY = 'founders-episodes';
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
+    const url = new URL(request.url);
+    const refresh = url.searchParams.get('refresh') === '1';
+
     // Check if we have cached data that's still valid
-    const cachedData = getCachedEpisodes();
-    if (cachedData) {
-      return NextResponse.json(cachedData, {
-        headers: {
-          'Cache-Control': `public, max-age=${Math.floor(config.cache.rss / 1000)}`,
-          'X-Cache': 'HIT',
-        },
-      });
+    if (!refresh) {
+      const cachedData = await getCache(CACHE_KEY);
+      if (cachedData) {
+        return NextResponse.json(
+          { ...cachedData, lastUpdated: new Date().toISOString() },
+          {
+            headers: {
+              'Cache-Control': `public, max-age=${CACHE_TTL}`,
+              'X-Cache': 'HIT',
+            },
+          }
+        );
+      }
     }
 
     // Fetch fresh data from RSS feed
@@ -30,15 +37,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const episodesData = await parseFoundersRssFeed();
 
     // Cache the results
-    setCachedEpisodes(episodesData);
+    await setCache(CACHE_KEY, episodesData, CACHE_TTL);
 
-    return NextResponse.json(episodesData, {
-      headers: {
-        'Cache-Control': `public, max-age=${Math.floor(config.cache.rss / 1000)}`,
-        'X-Cache': 'MISS',
-      },
-    });
-
+    return NextResponse.json(
+      { ...episodesData, lastUpdated: new Date().toISOString() },
+      {
+        headers: {
+          'Cache-Control': `public, max-age=${CACHE_TTL}`,
+          'X-Cache': 'MISS',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error fetching episodes:', error);
 
@@ -56,7 +65,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     // Handle generic errors
     const apiError: ApiError = {
-      message: config.isDevelopment 
+      message: config.isDevelopment
         ? `Failed to fetch episodes: ${error instanceof Error ? error.message : 'Unknown error'}`
         : 'Failed to fetch episodes',
       code: 'INTERNAL_ERROR',
@@ -65,44 +74,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ error: apiError }, { status: 500 });
   }
-}
-
-/**
- * Gets cached episodes if they're still valid
- */
-function getCachedEpisodes(): EpisodesResponse | null {
-  const cached = episodesCache.get(CACHE_KEY);
-  
-  if (!cached) {
-    return null;
-  }
-
-  const now = Date.now();
-  const isExpired = (now - cached.timestamp) > cached.ttl;
-
-  if (isExpired) {
-    episodesCache.delete(CACHE_KEY);
-    return null;
-  }
-
-  // Update lastUpdated to reflect cache hit time
-  return {
-    ...cached.data,
-    lastUpdated: new Date(cached.timestamp).toISOString(),
-  };
-}
-
-/**
- * Caches episodes data
- */
-function setCachedEpisodes(data: EpisodesResponse): void {
-  const cacheEntry: CacheEntry<EpisodesResponse> = {
-    data,
-    timestamp: Date.now(),
-    ttl: config.cache.rss,
-  };
-
-  episodesCache.set(CACHE_KEY, cacheEntry);
 }
 
 /**
@@ -141,10 +112,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     const body = await request.json();
-    
+
     if (body.action === 'clear-cache') {
-      episodesCache.delete(CACHE_KEY);
-      return NextResponse.json({ 
+      await deleteCache(CACHE_KEY);
+      return NextResponse.json({
         message: 'Episodes cache cleared successfully',
         timestamp: new Date().toISOString(),
       });
@@ -154,10 +125,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { error: { message: 'Invalid action', code: 'BAD_REQUEST' } },
       { status: 400 }
     );
-
   } catch (error) {
     console.error('Error in POST /api/episodes:', error);
-    
+
     return NextResponse.json(
       { error: { message: 'Internal server error', code: 'INTERNAL_ERROR' } },
       { status: 500 }

@@ -48,17 +48,7 @@ This is a Next.js 14 application that extracts book recommendations from the Fou
 
 ## Implementation Status
 
-**Current Progress**: 3/10 phases completed (30%) - See [MRD.md](./MRD.md) for detailed phase breakdown
-
-### Recently Completed (Phase 3)
-- ✅ Google Gemini integration for book extraction
-- ✅ Book extraction API endpoint (`/api/extract-books`)
-- ✅ LLM prompt engineering for accurate book identification
-
-### Next Phase (Phase 4)
-- 📋 Book price integration (Google Books API)
-- 📋 Frontend book display and search
-- 📋 Performance optimization
+See [MRD.md](./MRD.md) for detailed phase breakdown
 
 ## Development Guidelines
 
@@ -69,6 +59,7 @@ This is a Next.js 14 application that extracts book recommendations from the Fou
 - Implement accessibility features (tabindex, aria-labels)
 - Use const functions over function declarations
 - Define types for all functions
+- If you create any temporary new files, scripts, or helper files for iteration, clean up these files by removing them at the end of the task.
 
 ### API Design Patterns
 - Consistent error response format with ApiError interface

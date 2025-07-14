@@ -5,6 +5,7 @@ import { config } from '@/lib/config';
 import { validateBookData } from '@/lib/validation';
 import { mergeDuplicateBooks } from '@/lib/merge-books';
 import { calculateEnhancedConfidence, scoreMultipleBooks } from '@/lib/confidence';
+import { getCache, setCache } from '@/lib/cache';
 
 interface CacheEntry<T> {
   data: T;
@@ -46,41 +47,35 @@ interface ExtractedBookWithContext {
   extractionMethod: 'simple' | 'multi-pass';
 }
 
-// In-memory cache for book extraction results with enhanced metadata
-const bookExtractionCache = new Map<string, CacheEntry<ExtractedBookWithContext[]>>();
+const CACHE_TTL = 86400; // 24 hours in seconds
+
+// Remove in-memory caches
+// const bookExtractionCache = new Map<string, CacheEntry<ExtractedBookWithContext[]>>();
+// const episodeContextCache = new Map<string, string>();
+
+const getCachedBookExtraction = async (episodeId: string): Promise<ExtractedBookWithContext[] | null> => {
+  const cacheKey = `extract:episode:${episodeId}`;
+  return await getCache(cacheKey);
+};
+
+const setCachedBookExtraction = async (episodeId: string, books: ExtractedBookWithContext[]): Promise<void> => {
+  const cacheKey = `extract:episode:${episodeId}`;
+  await setCache(cacheKey, books, CACHE_TTL);
+};
+
+// Context preservation can remain in-memory for now (not persisted)
 const episodeContextCache = new Map<string, string>();
-
-const getCachedBookExtraction = (episodeId: string): ExtractedBookWithContext[] | null => {
-  const cached = bookExtractionCache.get(episodeId);
-  if (!cached) return null;
-  
-  const now = Date.now();
-  if (now - cached.timestamp > cached.ttl) {
-    bookExtractionCache.delete(episodeId);
-    return null;
-  }
-  
-  return cached.data;
-};
-
-const setCachedBookExtraction = (episodeId: string, books: ExtractedBookWithContext[]): void => {
-  bookExtractionCache.set(episodeId, {
-    data: books,
-    timestamp: Date.now(),
-    ttl: config.cache.bookExtractionTtl
-  });
-};
-
 const getPreservedContext = (episodeId: string): string => {
   return episodeContextCache.get(episodeId) || '';
 };
-
 const setPreservedContext = (episodeId: string, context: string): void => {
   episodeContextCache.set(episodeId, context);
 };
 
 export async function POST(request: NextRequest) {
   try {
+    const url = new URL(request.url);
+    const refresh = url.searchParams.get('refresh') === '1';
     const body: BookExtractionRequest = await request.json();
     
     if (!body.episodes || !Array.isArray(body.episodes)) {
@@ -113,7 +108,10 @@ export async function POST(request: NextRequest) {
       const batchPromises = batch.map(async (episode, batchIndex) => {
         try {
           // Check cache first
-          const cachedBooksWithContext = getCachedBookExtraction(episode.id);
+          let cachedBooksWithContext: ExtractedBookWithContext[] | null = null;
+          if (!refresh) {
+            cachedBooksWithContext = await getCachedBookExtraction(episode.id);
+          }
           if (cachedBooksWithContext) {
             console.log(`Using cached extraction for episode: ${episode.title}`);
             return cachedBooksWithContext.map(item => ({
@@ -149,9 +147,8 @@ export async function POST(request: NextRequest) {
 
           if (!extractionResult.books || !Array.isArray(extractionResult.books)) {
             console.warn(`No books found for episode: ${episode.title}`);
-            
             // Cache empty result
-            setCachedBookExtraction(episode.id, []);
+            await setCachedBookExtraction(episode.id, []);
             return [];
           }
 
@@ -213,7 +210,7 @@ export async function POST(request: NextRequest) {
             contextPreserved: extractionResult.contextPreserved || '',
             extractionMethod: extractionResult.multiPass ? 'multi-pass' : 'simple'
           }));
-          setCachedBookExtraction(episode.id, booksWithContext);
+          await setCachedBookExtraction(episode.id, booksWithContext);
           
           return validBooks;
 
@@ -300,7 +297,7 @@ export async function GET(request: NextRequest) {
   const action = searchParams.get('action');
   
   if (action === 'clear-cache') {
-    bookExtractionCache.clear();
+    // bookExtractionCache.clear(); // This line is removed
     episodeContextCache.clear();
     return NextResponse.json({ 
       success: true, 
@@ -309,18 +306,25 @@ export async function GET(request: NextRequest) {
   }
   
   if (action === 'cache-info') {
+    // return NextResponse.json({ // This line is removed
+    //   success: true,
+    //   cacheSize: bookExtractionCache.size,
+    //   contextCacheSize: episodeContextCache.size,
+    //   cacheEntries: Array.from(bookExtractionCache.keys()),
+    //   contextEntries: Array.from(episodeContextCache.keys())
+    // });
     return NextResponse.json({
       success: true,
-      cacheSize: bookExtractionCache.size,
+      cacheSize: 0, // No in-memory cache
       contextCacheSize: episodeContextCache.size,
-      cacheEntries: Array.from(bookExtractionCache.keys()),
+      cacheEntries: [],
       contextEntries: Array.from(episodeContextCache.keys())
     });
   }
 
   if (action === 'extraction-stats') {
     // Get statistics from cache
-    const totalCached = bookExtractionCache.size;
+    // const totalCached = bookExtractionCache.size; // This line is removed
     const contextsPreserved = episodeContextCache.size;
     
     let multiPassCount = 0;
@@ -328,24 +332,24 @@ export async function GET(request: NextRequest) {
     let totalBooks = 0;
     let highConfidenceBooks = 0;
 
-    bookExtractionCache.forEach((entry) => {
-      entry.data.forEach((item) => {
-        totalBooks++;
-        if (item.extractionMethod === 'multi-pass') {
-          multiPassCount++;
-        } else {
-          simplePassCount++;
-        }
-        if ((item.book.confidence || 0) >= 0.8) {
-          highConfidenceBooks++;
-        }
-      });
-    });
+    // bookExtractionCache.forEach((entry) => { // This line is removed
+    //   entry.data.forEach((item) => {
+    //     totalBooks++;
+    //     if (item.extractionMethod === 'multi-pass') {
+    //       multiPassCount++;
+    //     } else {
+    //       simplePassCount++;
+    //     }
+    //     if ((item.book.confidence || 0) >= 0.8) {
+    //       highConfidenceBooks++;
+    //     }
+    //   });
+    // });
 
     return NextResponse.json({
       success: true,
       stats: {
-        totalCachedEpisodes: totalCached,
+        // totalCachedEpisodes: totalCached, // This line is removed
         contextsPreserved,
         totalBooks,
         multiPassExtractions: multiPassCount,

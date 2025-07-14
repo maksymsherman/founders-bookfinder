@@ -138,13 +138,11 @@ Next.js 14+ with TypeScript, TailwindCSS, Google Gemini AI, Google Books API, Su
 
 ### Phase 6: Data Management & Caching
 
-- [ ] **Step 6.1: Advanced Caching Strategy**
-  - Implement multi-level caching:
-    - RSS feed cache (1 hour)
-    - Book extraction cache (24 hours)
-    - Book metadata cache (7 days)
-  - Use Next.js built-in caching or external solution
-  - Add cache invalidation and refresh methods
+- [X] **Step 6.1: Advanced Caching Strategy** ✅ COMPLETED
+  - Multi-level caching implemented using Supabase as the persistent cache backend (see src/lib/cache.ts)
+  - RSS feed cache (1 hour), Book extraction cache (24 hours), Book metadata cache (7 days)
+  - Cache invalidation and refresh methods will be supported via query param or admin endpoint
+  - Next.js built-in caching is used where possible for static fetches, but all dynamic API caching is handled via Supabase
 
 - [ ] **Step 6.2: Data Processing Pipeline**
   - Create main data processing function that:
@@ -454,3 +452,15 @@ Respond in JSON format:
 
 *Last updated: December 28, 2024*
 *Next review: After Phase 4 completion (Book data enhancement & storage)* 
+
+## Supabase Cache Table Migration
+
+To enable persistent caching, run the following SQL in your Supabase SQL editor:
+
+```sql
+create table cache (
+  key text primary key,
+  value jsonb,
+  expires_at timestamptz
+);
+``` 
