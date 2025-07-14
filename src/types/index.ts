@@ -244,4 +244,89 @@ export interface EnhancedBook extends Book {
 export interface BookValidationResult {
   valid: boolean;
   errors: string[];
+}
+
+// Data Quality types
+export interface DataQualityIssue {
+  id: string;
+  bookId: string;
+  type: 'critical' | 'warning' | 'info';
+  category: 'integrity' | 'completeness' | 'accuracy' | 'consistency';
+  message: string;
+  suggestedFix?: string;
+  fixable: boolean;
+  detectedAt: string;
+}
+
+export interface DataQualityReport {
+  summary: {
+    totalBooks: number;
+    issuesFound: number;
+    criticalIssues: number;
+    warningIssues: number;
+    infoIssues: number;
+    qualityScore: number; // 0-100
+  };
+  issues: DataQualityIssue[];
+  metrics: DataQualityMetrics;
+  generatedAt: string;
+}
+
+export interface DataQualityMetrics {
+  completeness: {
+    withISBN: number;
+    withDescription: number;
+    withCoverImage: number;
+    withPublisher: number;
+    withCategories: number;
+    withRatings: number;
+  };
+  accuracy: {
+    enhancedBooks: number;
+    failedEnhancements: number;
+    notFoundBooks: number;
+    verifiedMetadata: number;
+  };
+  consistency: {
+    duplicateBooks: number;
+    inconsistentAuthors: number;
+    inconsistentTitles: number;
+    orphanedBooks: number;
+  };
+  integrity: {
+    validDates: number;
+    validURLs: number;
+    validISBNs: number;
+    validRatings: number;
+  };
+}
+
+export interface BookCleaningSuggestion {
+  bookId: string;
+  type: 'title_case' | 'author_case' | 'remove_duplicates' | 'merge_similar' | 'normalize_isbn';
+  description: string;
+  currentValue: string;
+  suggestedValue: string;
+  confidence: number;
+}
+
+export interface CleaningResult {
+  bookId: string;
+  success: boolean;
+  changes: string[];
+  errors: string[];
+}
+
+export interface BulkCleaningResult {
+  totalProcessed: number;
+  successful: number;
+  failed: number;
+  results: CleaningResult[];
+  summary: {
+    titlesNormalized: number;
+    authorsNormalized: number;
+    isbnsCleaned: number;
+    urlsFixed: number;
+    duplicatesRemoved: number;
+  };
 } 
