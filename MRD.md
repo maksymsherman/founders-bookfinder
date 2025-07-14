@@ -1,19 +1,21 @@
 # Founders Podcast Book Finder - Minimum Requirements Document
 
-A web application that extracts book recommendations from the Founders Podcast feed and displays current book prices.
+A web application that extracts book recommendations from the Founders Podcast feed and saves them in a structured format for future analysis and display.
 
 ## Project Overview
 
 This application will:
 - Parse the Founders Podcast RSS feed
-- Extract book titles and links from episode descriptions using LLM
-- Fetch current book prices from various sources
-- Display books in a clean, searchable interface
+- Extract book titles, authors, and context from episode descriptions using LLM
+- Save extracted books in a structured, searchable format
+- Implement data validation and deduplication
+- Create a robust book extraction and management system
+- Eventually display books with pricing information
 - Be deployable on Vercel
 
 ## Technical Stack
 
-Next.js 14+ with TypeScript, TailwindCSS, Google Gemini AI, Google Books API, fast-xml-parser, deployed on Vercel.
+Next.js 14+ with TypeScript, TailwindCSS, Google Gemini AI, Google Books API, Supabase PostgreSQL, fast-xml-parser, deployed on Vercel.
 
 *See [CLAUDE.md](./CLAUDE.md) for detailed technical architecture and implementation guidelines*
 
@@ -34,6 +36,7 @@ Next.js 14+ with TypeScript, TailwindCSS, Google Gemini AI, Google Books API, fa
   - Set up environment variables for:
     - Google Gemini API key
     - Google Books API key (optional)
+    - Supabase URL and anon key
     - Any other required API keys
 
 - [X] **Step 1.3: Basic UI Components**
@@ -88,159 +91,211 @@ Next.js 14+ with TypeScript, TailwindCSS, Google Gemini AI, Google Books API, fa
   - Implement response caching to avoid redundant LLM calls
   - Test with real episode data
 
-### Phase 4: Book Price Integration
+### Phase 4: Book Data Enhancement & Storage
 
-- [ ] **Step 4.1: Book Search API Integration**
-  - Integrate Google Books API for book search and basic info
-  - Create fallback to Open Library API
-  - Implement book ISBN/identifier lookup
-  - Test book search functionality
+- [ ] **Step 4.1: Book Data Enrichment**
+  - Integrate Google Books API for additional book metadata (ISBN, publisher, publication date, cover images)
+  - Create fallback to Open Library API for missing data
+  - Implement book ISBN/identifier lookup and validation
+  - Add book cover image fetching and local caching
 
-- [ ] **Step 4.2: Price Data Sources**
-  - Research and implement price checking options:
+- [ ] **Step 4.2: Database Setup & Schema Design**
+  - Set up Supabase project and configure database connection
+  - Design PostgreSQL schema for books, episodes, and extraction metadata
+  - Create database tables with proper indexes and relationships
+  - Implement database migration scripts and version control
+
+- [ ] **Step 4.3: Database Integration & ORM Setup**
+  - Install and configure Supabase client for Next.js
+  - Set up database connection and environment variables
+  - Create TypeScript types for database schema
+  - Implement database utility functions and error handling
+
+- [ ] **Step 4.4: Book Management API**
+  - Create `/api/books` endpoint for CRUD operations with Supabase
+  - Implement book search and filtering capabilities using PostgreSQL
+  - Add book editing and manual addition features
+  - Create book deletion and archiving functionality
+
+### Phase 5: Data Validation & Quality Control
+
+- [ ] **Step 5.1: Book Extraction Validation**
+  - Implement book title and author validation logic
+  - Create duplicate detection and merging algorithms
+  - Add confidence scoring for extracted books
+  - Build manual review system for low-confidence extractions
+
+- [ ] **Step 5.2: Data Quality Assurance**
+  - Create data integrity checks and validation rules
+  - Implement automated data cleaning processes
+  - Add book metadata verification against external sources
+  - Create data quality reports and metrics
+
+- [ ] **Step 5.3: Enhanced LLM Processing**
+  - Improve LLM prompts for better extraction accuracy
+  - Implement multi-pass extraction for complex episodes
+  - Add context preservation between book mentions
+  - Create extraction confidence scoring system
+
+### Phase 6: Data Management & Caching
+
+- [ ] **Step 6.1: Advanced Caching Strategy**
+  - Implement multi-level caching:
+    - RSS feed cache (1 hour)
+    - Book extraction cache (24 hours)
+    - Book metadata cache (7 days)
+  - Use Next.js built-in caching or external solution
+  - Add cache invalidation and refresh methods
+
+- [ ] **Step 6.2: Data Processing Pipeline**
+  - Create main data processing function that:
+    - Fetches RSS feed
+    - Extracts books using LLM
+    - Enriches with metadata
+    - Stores in structured format
+  - Implement incremental processing for new episodes
+  - Add data versioning and rollback capabilities
+
+- [ ] **Step 6.3: Advanced Database Features**
+  - Implement PostgreSQL full-text search for books
+  - Add database triggers for data validation and audit logging
+  - Create database views for analytics and reporting
+  - Implement automated data maintenance and cleanup tasks
+
+### Phase 7: Frontend Implementation
+
+- [ ] **Step 7.1: Main Page Layout**
+  - Create responsive layout with header and main content area
+  - Implement loading states for data fetching
+  - Add error handling UI components
+  - Test responsive design on mobile/tablet
+
+- [ ] **Step 7.2: Book Display Components**
+  - Create book grid/list component
+  - Implement individual book card with:
+    - Book cover image
+    - Title and author
+    - Episode context and links
+    - Date added/episode date
+    - Extraction confidence score
+  - Add hover states and interactions
+
+- [ ] **Step 7.3: Search and Filter Features**
+  - Implement client-side search functionality
+  - Add filters for:
+    - Date range
+    - Author
+    - Episode
+    - Confidence score
+  - Add sorting options (date, title, confidence)
+  - Test search performance
+
+- [ ] **Step 7.4: Book Management Interface**
+  - Add book editing and manual addition forms
+  - Create book approval/rejection interface
+  - Implement batch operations for books
+  - Add data export functionality
+
+### Phase 8: Book Price Integration (Optional)
+
+- [ ] **Step 8.1: Price Data Sources Research**
+  - Research and evaluate price checking options:
     - Google Books (limited pricing)
     - Amazon Product Advertising API (requires approval)
     - Alternative: Web scraping with rate limiting
     - Book price comparison APIs
   - Choose most reliable and accessible option
 
-- [ ] **Step 4.3: Price Fetching API Endpoint**
+- [ ] **Step 8.2: Price Fetching Implementation**
   - Create `/api/book-prices` endpoint
   - Implement price caching (24-hour cache recommended)
   - Add error handling for unavailable prices
   - Test price fetching accuracy
 
-### Phase 5: Data Processing & Management
+- [ ] **Step 8.3: Price Display Integration**
+  - Add price information to book cards
+  - Implement "Buy Now" buttons with affiliate tracking
+  - Add price history tracking
+  - Create price alerts and notifications
 
-- [ ] **Step 5.1: Data Processing Pipeline**
-  - Create main data processing function that:
-    - Fetches RSS feed
-    - Extracts books using LLM
-    - Fetches current prices
-    - Combines and formats data
-  - Implement data deduplication logic
-  - Add data validation and sanitization
+### Phase 9: Performance & Optimization
 
-- [ ] **Step 5.2: Caching Strategy**
-  - Implement multi-level caching:
-    - RSS feed cache (1 hour)
-    - Book extraction cache (24 hours)
-    - Price data cache (24 hours)
-  - Use Next.js built-in caching or external solution
-  - Add cache invalidation methods
-
-- [ ] **Step 5.3: Main API Endpoint**
-  - Create `/api/books` endpoint that serves processed book data
-  - Implement pagination for large datasets
-  - Add filtering and sorting options
-  - Test full data pipeline
-
-### Phase 6: Frontend Implementation
-
-- [ ] **Step 6.1: Main Page Layout**
-  - Create responsive layout with header and main content area
-  - Implement loading states for data fetching
-  - Add error handling UI components
-  - Test responsive design on mobile/tablet
-
-- [ ] **Step 6.2: Book Display Components**
-  - Create book grid/list component
-  - Implement individual book card with:
-    - Book cover image
-    - Title and author
-    - Episode context
-    - Current price and links
-    - Date added/episode date
-  - Add hover states and interactions
-
-- [ ] **Step 6.3: Search and Filter Features**
-  - Implement client-side search functionality
-  - Add filters for:
-    - Date range
-    - Price range
-    - Author
-    - Episode
-  - Add sorting options (date, price, title)
-  - Test search performance
-
-- [ ] **Step 6.4: Additional UI Features**
-  - Add "View Episode" links back to original podcast
-  - Implement "Buy Now" buttons with affiliate tracking (if desired)
-  - Add social sharing buttons
-  - Create about/FAQ page
-
-### Phase 7: Performance & Optimization
-
-- [ ] **Step 7.1: Performance Optimization**
+- [ ] **Step 9.1: Performance Optimization**
   - Implement image optimization for book covers
   - Add lazy loading for book cards
   - Optimize bundle size and remove unused dependencies
   - Test page load speeds
 
-- [ ] **Step 7.2: SEO & Metadata**
+- [ ] **Step 9.2: SEO & Metadata**
   - Add proper meta tags and OpenGraph data
   - Implement structured data for books
   - Create sitemap.xml
   - Add robots.txt
 
-- [ ] **Step 7.3: Error Handling & Monitoring**
+- [ ] **Step 9.3: Error Handling & Monitoring**
   - Implement comprehensive error logging
   - Add user-friendly error messages
   - Create health check endpoint
   - Test error scenarios
 
-### Phase 8: Testing & Quality Assurance
+### Phase 10: Testing & Quality Assurance
 
-- [ ] **Step 8.1: API Testing**
+- [ ] **Step 10.1: Book Extraction Testing**
+  - Test LLM extraction accuracy with various episode types
+  - Verify duplicate detection and merging
+  - Test confidence scoring accuracy
+  - Validate book metadata enrichment
+
+- [ ] **Step 10.2: API Testing**
   - Test all API endpoints with various inputs
   - Verify error handling and edge cases
   - Test rate limiting and caching
-  - Validate data accuracy
+  - Validate data integrity and consistency
 
-- [ ] **Step 8.2: Frontend Testing**
+- [ ] **Step 10.3: Frontend Testing**
   - Test responsive design across devices
   - Verify search and filter functionality
-  - Test loading states and error handling
+  - Test book management interface
   - Cross-browser compatibility testing
 
-- [ ] **Step 8.3: End-to-End Testing**
-  - Test complete data flow from RSS to display
-  - Verify book extraction accuracy
-  - Test price data accuracy
+- [ ] **Step 10.4: End-to-End Testing**
+  - Test complete data flow from RSS to storage
+  - Verify book extraction accuracy across different episodes
+  - Test data persistence and retrieval
   - Performance testing under load
 
-### Phase 9: Local Development Completion
+### Phase 11: Local Development Completion
 
-- [ ] **Step 9.1: Documentation**
+- [ ] **Step 11.1: Documentation**
   - Create setup instructions for local development
-  - Document API endpoints and responses
-  - Add troubleshooting guide
+  - Document API endpoints and book data structure
+  - Add troubleshooting guide for book extraction
   - Create configuration guide for API keys
 
-- [ ] **Step 9.2: Local Environment Testing**
+- [ ] **Step 11.2: Local Environment Testing**
   - Test complete application in local environment
-  - Verify all features work without internet dependencies where possible
+  - Verify book extraction and storage works reliably
   - Test with various RSS feed scenarios
-  - Validate caching mechanisms
+  - Validate caching and data management
 
-### Phase 10: Deployment Preparation
+### Phase 12: Deployment Preparation
 
-- [ ] **Step 10.1: Vercel Configuration**
+- [ ] **Step 12.1: Vercel Configuration**
   - Create `vercel.json` configuration file
   - Set up environment variables in Vercel dashboard
   - Configure build settings and serverless functions
   - Test build process locally
 
-- [ ] **Step 10.2: Production Optimization**
+- [ ] **Step 12.2: Production Optimization**
   - Implement production-specific configurations
   - Add rate limiting for API endpoints
   - Configure CDN for static assets
   - Set up monitoring and error tracking
 
-- [ ] **Step 10.3: Deployment Testing**
+- [ ] **Step 12.3: Deployment Testing**
   - Deploy to Vercel staging environment
   - Test all functionality in production environment
-  - Verify API endpoints work with production URLs
+  - Verify book extraction and storage in production
   - Test performance and caching in production
 
 ## Book Link Extraction Strategy
@@ -281,12 +336,19 @@ Respond in JSON format:
 
 ## Success Criteria
 
-- [X] **Functional Requirements Met**
+- [X] **Core Book Extraction Requirements**
   - Successfully parses Founders Podcast RSS feed ✅
   - Accurately extracts book recommendations using LLM ✅
-  - Displays current book prices (Phase 4 - pending)
-  - Provides clean, searchable interface (Phase 6 - pending)
+  - Saves extracted books in structured format (Phase 4 - pending)
+  - Implements data validation and deduplication (Phase 5 - pending)
   - Works reliably in local development environment ✅
+
+- [ ] **Data Management Requirements**
+  - Book data stored in searchable, structured format
+  - Duplicate detection and merging works accurately
+  - Book metadata enrichment from external APIs
+  - Data quality assurance and validation
+  - Export capabilities for extracted data
 
 - [ ] **Technical Requirements Met**
   - Responsive design works on all devices
@@ -298,7 +360,7 @@ Respond in JSON format:
 - [ ] **Ready for Deployment**
   - All environment variables configured
   - Build process works without errors
-  - All features tested in production-like environment
+  - Book extraction tested in production-like environment
   - Documentation complete for maintenance
 
 ---
@@ -307,16 +369,18 @@ Respond in JSON format:
 
 - **Phase 1-2**: 2-3 days (Project setup and RSS integration) ✅ COMPLETED
 - **Phase 3**: 2-3 days (LLM book extraction) ✅ COMPLETED
-- **Phase 4**: 2-3 days (Book price integration) 🚧 NEXT
-- **Phase 5**: 1-2 days (Data processing)
-- **Phase 6**: 3-4 days (Frontend implementation)
-- **Phase 7-8**: 2-3 days (Optimization and testing)
-- **Phase 9-10**: 1-2 days (Deployment preparation)
+- **Phase 4**: 2-3 days (Book data enhancement & storage) 🚧 NEXT
+- **Phase 5**: 2-3 days (Data validation & quality control)
+- **Phase 6**: 2-3 days (Data management & caching)
+- **Phase 7**: 3-4 days (Frontend implementation)
+- **Phase 8**: 2-3 days (Book price integration - Optional)
+- **Phase 9-10**: 2-3 days (Optimization and testing)
+- **Phase 11-12**: 1-2 days (Deployment preparation)
 
-**Total Estimated Time**: 14-21 days for a fully functional application
-**Current Progress**: 3/10 phases completed (30%)
+**Total Estimated Time**: 16-24 days for a fully functional application with book extraction focus
+**Current Progress**: 3/12 phases completed (25%)
 
 ---
 
 *Last updated: July 14, 2025*
-*Next review: After Phase 4 completion* 
+*Next review: After Phase 4 completion (Book data enhancement & storage)* 

@@ -42,6 +42,9 @@ next-env.d.ts
 *.swp
 *.swo
 
+# Cursor MCP configuration (contains API keys)
+.cursor/mcp.json
+
 # Logs
 logs
 *.log
