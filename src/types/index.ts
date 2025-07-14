@@ -32,6 +32,8 @@ export interface Book {
   language?: string;
   infoLink?: string;
   dateAdded: string;
+  confidence?: number;
+  needsReview?: boolean;
 }
 
 // Book price information
@@ -237,4 +239,9 @@ export interface EnhancedBook extends Book {
   enhancementStatus: 'pending' | 'enhanced' | 'failed' | 'not_found';
   enhancementDate?: string;
   enhancementError?: string;
+}
+
+export interface BookValidationResult {
+  valid: boolean;
+  errors: string[];
 } 

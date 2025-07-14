@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getGeminiClient } from '@/lib/gemini-client';
 import { Episode, Book, ApiError } from '@/types';
 import { config } from '@/lib/config';
+import { validateBookData } from '@/lib/validation';
+import { mergeDuplicateBooks } from '@/lib/merge-books';
+import { scoreBookConfidence } from '@/lib/confidence';
 
 interface CacheEntry<T> {
   data: T;
@@ -51,7 +54,6 @@ export async function POST(request: NextRequest) {
     
     if (!body.episodes || !Array.isArray(body.episodes)) {
       const error: ApiError = {
-        error: 'Invalid request body',
         message: 'Episodes array is required',
         code: 'INVALID_REQUEST'
       };
@@ -92,21 +94,38 @@ export async function POST(request: NextRequest) {
           }
 
           // Transform the extraction result to match our Book interface
-          const episodeBooks: Book[] = extractionResult.books.map((book: any) => ({
-            id: `${episode.id}-${book.title.replace(/\s+/g, '-').toLowerCase()}`,
-            title: book.title,
-            author: book.author,
-            links: book.links || [],
-            episodeId: episode.id,
-            episodeTitle: episode.title,
-            episodeDate: episode.pubDate,
-            extractedAt: new Date().toISOString()
-          }));
+          const episodeBooks: Book[] = extractionResult.books.map((book: any) => {
+            const b: Book = {
+              id: `${episode.id}-${book.title.replace(/\s+/g, '-').toLowerCase()}`,
+              title: book.title,
+              author: book.author,
+              extractedLinks: book.links || [],
+              episodeId: episode.id,
+              episodeTitle: episode.title,
+              episodeDate: episode.pubDate,
+              context: book.context,
+              dateAdded: new Date().toISOString(),
+            };
+            b.confidence = scoreBookConfidence(b);
+            b.needsReview = b.confidence < 0.7;
+            return b;
+          });
+
+          // Validate books and filter out invalid ones
+          const validBooks: Book[] = [];
+          episodeBooks.forEach((book) => {
+            const validation = validateBookData(book);
+            if (validation.valid) {
+              validBooks.push(book);
+            } else {
+              errors.push(`Invalid book (episode: ${episode.title}, title: ${book.title}): ${validation.errors.join('; ')}`);
+            }
+          });
 
           // Cache the results
-          setCachedBookExtraction(episode.id, episodeBooks);
+          setCachedBookExtraction(episode.id, validBooks);
           
-          return episodeBooks;
+          return validBooks;
         } catch (error) {
           const errorMsg = `Failed to extract books from episode "${episode.title}": ${error instanceof Error ? error.message : 'Unknown error'}`;
           console.error(errorMsg);
@@ -143,7 +162,7 @@ export async function POST(request: NextRequest) {
 
     const response: BookExtractionResponse = {
       success: true,
-      books: allBooks,
+      books: mergeDuplicateBooks(allBooks),
       processedEpisodes,
       errors
     };
@@ -153,7 +172,6 @@ export async function POST(request: NextRequest) {
     console.error('Book extraction API error:', error);
     
     const apiError: ApiError = {
-      error: 'Internal server error',
       message: error instanceof Error ? error.message : 'Unknown error occurred',
       code: 'INTERNAL_ERROR'
     };
