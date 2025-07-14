@@ -5,19 +5,20 @@ export const config = {
   googleBooksApiKey: process.env.GOOGLE_BOOKS_API_KEY || '',
   
   // RSS Feed Configuration
-  foundersPodcastRssUrl: process.env.FOUNDERS_PODCAST_RSS_URL || 'https://feeds.megaphone.fm/DSLLC6297708582',
+  foundersPodcastRssUrl: 'https://feeds.megaphone.fm/DSLLC6297708582',
   
   // Cache TTL settings (in milliseconds)
   cache: {
-    rss: parseInt(process.env.RSS_CACHE_TTL || '3600000'), // 1 hour
-    bookExtraction: parseInt(process.env.BOOK_EXTRACTION_CACHE_TTL || '86400000'), // 24 hours
-    prices: parseInt(process.env.PRICE_CACHE_TTL || '86400000'), // 24 hours
+    rss: 3600000, // 1 hour
+    bookExtraction: 86400000, // 24 hours
+    prices: 86400000, // 24 hours
+    bookExtractionTtl: 86400000, // 24 hours (used by extract-books API)
   },
   
   // Rate limiting
   rateLimits: {
-    llmPerMinute: parseInt(process.env.LLM_RATE_LIMIT_PER_MINUTE || '4000'), // Updated for Gemini 2.5 Flash Lite
-    booksApiPerMinute: parseInt(process.env.BOOKS_API_RATE_LIMIT_PER_MINUTE || '100'),
+    llmPerMinute: 4000, // Gemini 2.5 Flash Lite rate limit
+    booksApiPerMinute: 100,
   },
   
   // Environment
@@ -48,13 +49,6 @@ Required Environment Variables:
 1. GOOGLE_GEMINI_API_KEY - Get from Google AI Studio (https://aistudio.google.com/)
 2. GOOGLE_BOOKS_API_KEY - Get from Google Cloud Console (https://console.cloud.google.com/)
 
-Optional Environment Variables:
-- FOUNDERS_PODCAST_RSS_URL (defaults to official feed)
-- RSS_CACHE_TTL (cache duration in ms, default: 1 hour)
-- BOOK_EXTRACTION_CACHE_TTL (cache duration in ms, default: 24 hours)
-- PRICE_CACHE_TTL (cache duration in ms, default: 24 hours)
-- LLM_RATE_LIMIT_PER_MINUTE (default: 60)
-- BOOKS_API_RATE_LIMIT_PER_MINUTE (default: 100)
-
 Create a .env.local file in the project root with these variables.
+All other configuration settings are now in src/lib/config.ts
 `; 

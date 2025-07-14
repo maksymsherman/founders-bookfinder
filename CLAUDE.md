@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Next.js 14 application that extracts book recommendations from the Founders Podcast RSS feed using Google Gemini AI and displays them with pricing information. The app is built with TypeScript and TailwindCSS, designed for deployment on Vercel.
 
+**📋 For detailed project requirements and development roadmap, see [MRD.md](./MRD.md)**
+
 ## Development Commands
 
 ### Essential Commands
@@ -46,19 +48,14 @@ This is a Next.js 14 application that extracts book recommendations from the Fou
 
 ## Implementation Status
 
-### Completed (Phase 1-2)
-- ✅ Next.js project setup with TypeScript and TailwindCSS
-- ✅ RSS feed parsing with comprehensive error handling
-- ✅ Basic UI components (Header, BookCard, LoadingSkeleton, ErrorBoundary)
-- ✅ `/api/episodes` endpoint with caching
-- ✅ Environment configuration system
+**Current Progress**: 3/10 phases completed (30%) - See [MRD.md](./MRD.md) for detailed phase breakdown
 
-### In Progress (Phase 3)
-- 🔄 Google Gemini integration for book extraction
-- 🔄 Book extraction API endpoint
-- 🔄 LLM prompt engineering for accurate book identification
+### Recently Completed (Phase 3)
+- ✅ Google Gemini integration for book extraction
+- ✅ Book extraction API endpoint (`/api/extract-books`)
+- ✅ LLM prompt engineering for accurate book identification
 
-### Planned (Phase 4+)
+### Next Phase (Phase 4)
 - 📋 Book price integration (Google Books API)
 - 📋 Frontend book display and search
 - 📋 Performance optimization
@@ -87,22 +84,9 @@ This is a Next.js 14 application that extracts book recommendations from the Fou
 
 ## Key Dependencies
 
-### Core
-- `next` ^14.0.0 - React framework
-- `react` ^18.0.0 - UI library
-- `typescript` ^5.0.0 - Type safety
+**Core Stack**: Next.js 14, TypeScript, TailwindCSS, Google Gemini AI, fast-xml-parser
 
-### RSS & AI
-- `fast-xml-parser` ^4.3.0 - RSS parsing
-- `@google/generative-ai` ^0.2.0 - Gemini AI integration
-
-### Styling
-- `tailwindcss` ^3.3.0 - Utility-first CSS
-- `autoprefixer` ^10.0.1 - CSS vendor prefixes
-
-### Development
-- `eslint` ^8.0.0 - Linting with Next.js config
-- `dotenv` ^17.1.0 - Environment variables
+*See [MRD.md](./MRD.md) for complete dependency list and technical stack details*
 
 ## Common Issues
 
