@@ -4,6 +4,10 @@ export const config = {
   googleGeminiApiKey: process.env.GOOGLE_GEMINI_API_KEY || '',
   googleBooksApiKey: process.env.GOOGLE_BOOKS_API_KEY || '',
   
+  // Supabase Configuration
+  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  supabaseAnonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+  
   // RSS Feed Configuration
   foundersPodcastRssUrl: 'https://feeds.megaphone.fm/DSLLC6297708582',
   
@@ -34,6 +38,14 @@ export const validateConfig = (): string[] => {
     errors.push('GOOGLE_GEMINI_API_KEY is required');
   }
   
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    errors.push('NEXT_PUBLIC_SUPABASE_URL is required');
+  }
+  
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    errors.push('NEXT_PUBLIC_SUPABASE_ANON_KEY is required');
+  }
+  
   // Google Books API key is optional for now
   if (!process.env.GOOGLE_BOOKS_API_KEY) {
     console.log('ℹ️  Google Books API key not set (optional for basic functionality)');
@@ -47,7 +59,11 @@ export const ENV_SETUP_GUIDE = `
 Required Environment Variables:
 
 1. GOOGLE_GEMINI_API_KEY - Get from Google AI Studio (https://aistudio.google.com/)
-2. GOOGLE_BOOKS_API_KEY - Get from Google Cloud Console (https://console.cloud.google.com/)
+2. NEXT_PUBLIC_SUPABASE_URL - Your Supabase project URL
+3. NEXT_PUBLIC_SUPABASE_ANON_KEY - Your Supabase anonymous key
+
+Optional Environment Variables:
+4. GOOGLE_BOOKS_API_KEY - Get from Google Cloud Console (https://console.cloud.google.com/)
 
 Create a .env.local file in the project root with these variables.
 All other configuration settings are now in src/lib/config.ts

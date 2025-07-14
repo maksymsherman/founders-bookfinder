@@ -20,6 +20,17 @@ export interface Book {
   context?: string; // Why the book was mentioned
   coverImage?: string;
   isbn?: string;
+  isbn13?: string;
+  isbn10?: string;
+  publisher?: string;
+  publishedDate?: string;
+  description?: string;
+  pageCount?: number;
+  categories?: string[];
+  averageRating?: number;
+  ratingsCount?: number;
+  language?: string;
+  infoLink?: string;
   dateAdded: string;
 }
 
@@ -115,4 +126,115 @@ export interface BookExtractionResult {
   }>;
   rawResponse?: string;
   confidence?: number;
+}
+
+// Google Books API types
+export interface GoogleBooksResponse {
+  kind: string;
+  totalItems: number;
+  items?: GoogleBooksItem[];
+}
+
+export interface GoogleBooksItem {
+  kind: string;
+  id: string;
+  etag: string;
+  selfLink: string;
+  volumeInfo: GoogleBooksVolumeInfo;
+  saleInfo?: GoogleBooksSaleInfo;
+  accessInfo?: GoogleBooksAccessInfo;
+}
+
+export interface GoogleBooksVolumeInfo {
+  title: string;
+  subtitle?: string;
+  authors?: string[];
+  publisher?: string;
+  publishedDate?: string;
+  description?: string;
+  industryIdentifiers?: Array<{
+    type: string;
+    identifier: string;
+  }>;
+  readingModes?: {
+    text: boolean;
+    image: boolean;
+  };
+  pageCount?: number;
+  printType?: string;
+  categories?: string[];
+  averageRating?: number;
+  ratingsCount?: number;
+  maturityRating?: string;
+  allowAnonLogging?: boolean;
+  contentVersion?: string;
+  panelizationSummary?: {
+    containsEpubBubbles: boolean;
+    containsImageBubbles: boolean;
+  };
+  imageLinks?: {
+    smallThumbnail?: string;
+    thumbnail?: string;
+    small?: string;
+    medium?: string;
+    large?: string;
+    extraLarge?: string;
+  };
+  language?: string;
+  previewLink?: string;
+  infoLink?: string;
+  canonicalVolumeLink?: string;
+}
+
+export interface GoogleBooksSaleInfo {
+  country: string;
+  saleability: string;
+  isEbook: boolean;
+  listPrice?: {
+    amount: number;
+    currencyCode: string;
+  };
+  retailPrice?: {
+    amount: number;
+    currencyCode: string;
+  };
+  buyLink?: string;
+  offers?: Array<{
+    finskyOfferType: number;
+    listPrice: {
+      amountInMicros: number;
+      currencyCode: string;
+    };
+    retailPrice: {
+      amountInMicros: number;
+      currencyCode: string;
+    };
+  }>;
+}
+
+export interface GoogleBooksAccessInfo {
+  country: string;
+  viewability: string;
+  embeddable: boolean;
+  publicDomain: boolean;
+  textToSpeechPermission: string;
+  epub: {
+    isAvailable: boolean;
+    acsTokenLink?: string;
+  };
+  pdf: {
+    isAvailable: boolean;
+    acsTokenLink?: string;
+  };
+  webReaderLink?: string;
+  accessViewStatus: string;
+  quoteSharingAllowed: boolean;
+}
+
+// Enhanced book with metadata
+export interface EnhancedBook extends Book {
+  googleBooksId?: string;
+  enhancementStatus: 'pending' | 'enhanced' | 'failed' | 'not_found';
+  enhancementDate?: string;
+  enhancementError?: string;
 } 
