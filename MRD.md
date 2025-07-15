@@ -1,17 +1,24 @@
 # Founders Podcast Book Finder - Minimum Requirements Document
 
-A web application that extracts book recommendations from the Founders Podcast feed and saves them in a structured format for future analysis and display.
+A web application that extracts book recommendations from the Founders Podcast feed and displays them in a simple, clean interface.
 
 ## Project Overview
 
-This application will:
+**Minimum Viable Product (MVP):** A working app that pulls all books referenced by David Senra (Founders Podcast) and displays them in a functional front-end, deployed on Vercel.
+
+### MVP Core Features:
 - Parse the Founders Podcast RSS feed
 - Extract book titles, authors, and context from episode descriptions using LLM
-- Save extracted books in a structured, searchable format
-- Implement data validation and deduplication
-- Create a robust book extraction and management system
-- Eventually display books with pricing information
-- Be deployable on Vercel
+- Save extracted books in a structured format
+- Display books in a clean, responsive web interface
+- Deploy on Vercel with working functionality
+
+### Post-MVP Features (Optional):
+- Real-time book price tracking and comparison
+- Advanced database search and filtering
+- Complex data management features
+- Performance optimizations
+- Advanced UI/UX enhancements
 
 ## Technical Stack
 
@@ -144,58 +151,75 @@ Next.js 14+ with TypeScript, TailwindCSS, Google Gemini AI, Google Books API, Su
   - Cache invalidation and refresh methods will be supported via query param or admin endpoint
   - Next.js built-in caching is used where possible for static fetches, but all dynamic API caching is handled via Supabase
 
-- [ ] **Step 6.2: Data Processing Pipeline**
+## 🎯 **MVP REQUIREMENTS** (Essential for Launch)
+
+### Phase 6: Data Processing Pipeline (MVP Required)
+
+- [ ] **Step 6.2: Data Processing Pipeline** (MVP Required)
   - Create main data processing function that:
     - Fetches RSS feed
     - Extracts books using LLM
     - Enriches with metadata
     - Stores in structured format
   - Implement incremental processing for new episodes
-  - Add data versioning and rollback capabilities
 
-- [ ] **Step 6.3: Advanced Database Features**
-  - Implement PostgreSQL full-text search for books
-  - Add database triggers for data validation and audit logging
-  - Create database views for analytics and reporting
-  - Implement automated data maintenance and cleanup tasks
+### Phase 7: Frontend Implementation (MVP Required)
 
-### Phase 7: Frontend Implementation
-
-- [ ] **Step 7.1: Main Page Layout**
+- [ ] **Step 7.1: Main Page Layout** (MVP Required)
   - Create responsive layout with header and main content area
   - Implement loading states for data fetching
   - Add error handling UI components
   - Test responsive design on mobile/tablet
 
-- [ ] **Step 7.2: Book Display Components**
+- [ ] **Step 7.2: Book Display Components** (MVP Required)
   - Create book grid/list component
   - Implement individual book card with:
     - Book cover image
     - Title and author
     - Episode context and links
     - Date added/episode date
-    - Extraction confidence score
   - Add hover states and interactions
 
-- [ ] **Step 7.3: Search and Filter Features**
+### Phase 8: Deployment (MVP Required)
+
+- [ ] **Step 8.1: Vercel Configuration** (MVP Required)
+  - Create `vercel.json` configuration file
+  - Set up environment variables in Vercel dashboard
+  - Configure build settings and serverless functions
+  - Test build process locally
+
+- [ ] **Step 8.2: Production Deployment** (MVP Required)
+  - Deploy to Vercel production environment
+  - Test all functionality in production environment
+  - Verify book extraction and storage in production
+  - Ensure responsive design works correctly
+
+---
+
+## 📋 **POST-MVP FEATURES** (Optional - Implement After MVP Launch)
+
+### Phase 9: Enhanced Features (Optional)
+
+- [ ] **Step 9.1: Advanced Data Management** (Optional)
+  - Add data versioning and rollback capabilities
+  - Implement advanced caching strategies
+  - Add comprehensive monitoring
+
+- [ ] **Step 9.2: Search and Filter Features** (Optional)
   - Implement client-side search functionality
-  - Add filters for:
-    - Date range
-    - Author
-    - Episode
-    - Confidence score
+  - Add filters for date range, author, episode, confidence score
   - Add sorting options (date, title, confidence)
   - Test search performance
 
-- [ ] **Step 7.4: Book Management Interface**
+- [ ] **Step 9.3: Book Management Interface** (Optional)
   - Add book editing and manual addition forms
   - Create book approval/rejection interface
   - Implement batch operations for books
   - Add data export functionality
 
-### Phase 8: Book Price Integration (Optional)
+### Phase 10: Book Price Integration (Optional)
 
-- [ ] **Step 8.1: Price Data Sources Research**
+- [ ] **Step 10.1: Price Data Sources Research** (Optional)
   - Research and evaluate price checking options:
     - Google Books (limited pricing)
     - Amazon Product Advertising API (requires approval)
@@ -203,97 +227,77 @@ Next.js 14+ with TypeScript, TailwindCSS, Google Gemini AI, Google Books API, Su
     - Book price comparison APIs
   - Choose most reliable and accessible option
 
-- [ ] **Step 8.2: Price Fetching Implementation**
+- [ ] **Step 10.2: Price Fetching Implementation** (Optional)
   - Create `/api/book-prices` endpoint
   - Implement price caching (24-hour cache recommended)
   - Add error handling for unavailable prices
   - Test price fetching accuracy
 
-- [ ] **Step 8.3: Price Display Integration**
+- [ ] **Step 10.3: Price Display Integration** (Optional)
   - Add price information to book cards
   - Implement "Buy Now" buttons with affiliate tracking
   - Add price history tracking
   - Create price alerts and notifications
 
-### Phase 9: Performance & Optimization
+### Phase 11: Performance & Optimization (Optional)
 
-- [ ] **Step 9.1: Performance Optimization**
+- [ ] **Step 11.1: Performance Optimization** (Optional)
   - Implement image optimization for book covers
   - Add lazy loading for book cards
   - Optimize bundle size and remove unused dependencies
   - Test page load speeds
 
-- [ ] **Step 9.2: SEO & Metadata**
+- [ ] **Step 11.2: SEO & Metadata** (Optional)
   - Add proper meta tags and OpenGraph data
   - Implement structured data for books
   - Create sitemap.xml
   - Add robots.txt
 
-- [ ] **Step 9.3: Error Handling & Monitoring**
+- [ ] **Step 11.3: Error Handling & Monitoring** (Optional)
   - Implement comprehensive error logging
   - Add user-friendly error messages
   - Create health check endpoint
   - Test error scenarios
 
-### Phase 10: Testing & Quality Assurance
+### Phase 12: Testing & Quality Assurance (Optional)
 
-- [ ] **Step 10.1: Book Extraction Testing**
+- [ ] **Step 12.1: Book Extraction Testing** (Optional)
   - Test LLM extraction accuracy with various episode types
   - Verify duplicate detection and merging
   - Test confidence scoring accuracy
   - Validate book metadata enrichment
 
-- [ ] **Step 10.2: API Testing**
+- [ ] **Step 12.2: API Testing** (Optional)
   - Test all API endpoints with various inputs
   - Verify error handling and edge cases
   - Test rate limiting and caching
   - Validate data integrity and consistency
 
-- [ ] **Step 10.3: Frontend Testing**
+- [ ] **Step 12.3: Frontend Testing** (Optional)
   - Test responsive design across devices
   - Verify search and filter functionality
   - Test book management interface
   - Cross-browser compatibility testing
 
-- [ ] **Step 10.4: End-to-End Testing**
+- [ ] **Step 12.4: End-to-End Testing** (Optional)
   - Test complete data flow from RSS to storage
   - Verify book extraction accuracy across different episodes
   - Test data persistence and retrieval
   - Performance testing under load
 
-### Phase 11: Local Development Completion
+### Phase 13: Documentation & Advanced Features (Optional)
 
-- [ ] **Step 11.1: Documentation**
+- [ ] **Step 13.1: Documentation** (Optional)
   - Create setup instructions for local development
   - Document API endpoints and book data structure
   - Add troubleshooting guide for book extraction
   - Create configuration guide for API keys
 
-- [ ] **Step 11.2: Local Environment Testing**
-  - Test complete application in local environment
-  - Verify book extraction and storage works reliably
-  - Test with various RSS feed scenarios
-  - Validate caching and data management
-
-### Phase 12: Deployment Preparation
-
-- [ ] **Step 12.1: Vercel Configuration**
-  - Create `vercel.json` configuration file
-  - Set up environment variables in Vercel dashboard
-  - Configure build settings and serverless functions
-  - Test build process locally
-
-- [ ] **Step 12.2: Production Optimization**
-  - Implement production-specific configurations
-  - Add rate limiting for API endpoints
-  - Configure CDN for static assets
-  - Set up monitoring and error tracking
-
-- [ ] **Step 12.3: Deployment Testing**
-  - Deploy to Vercel staging environment
-  - Test all functionality in production environment
-  - Verify book extraction and storage in production
-  - Test performance and caching in production
+- [ ] **Step 13.2: Advanced Features** (Optional)
+  - Add advanced search and filtering
+  - Implement book management interface
+  - Add data export capabilities
+  - Create admin dashboard
 
 ## Book Link Extraction Strategy
 
