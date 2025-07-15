@@ -16,6 +16,7 @@ interface RssItem {
   pubDate: string;
   link: string;
   guid: string | { '#text': string };
+  encoded?: string; // Rich content with HTML links (content:encoded after namespace removal)
 }
 
 interface RssFeed {
@@ -51,7 +52,7 @@ export class RssParser {
       trimValues: true,
       removeNSPrefix: true,
       alwaysCreateTextNode: false,
-      stopNodes: ['*.content:encoded'], // Skip large content nodes for performance
+      // Note: We now include content:encoded to preserve links in episode descriptions
     });
   }
 
@@ -227,10 +228,13 @@ export class RssParser {
     // Clean and validate pubDate
     const pubDate = this.parsePubDate(item.pubDate);
 
+    // Use encoded field for description if available (has rich HTML with links), otherwise fall back to description
+    const descriptionContent = item.encoded || item.description;
+
     return {
       id,
       title: this.cleanText(item.title),
-      description: this.cleanText(item.description),
+      description: this.cleanText(descriptionContent),
       pubDate,
       link: item.link || '',
       guid,
@@ -267,18 +271,24 @@ export class RssParser {
   }
 
   /**
-   * Cleans and sanitizes text content
+   * Cleans and sanitizes text content while preserving links
    */
   private cleanText(text: any): string {
     if (!text) return '';
     
     // Ensure text is a string
-    const textStr = String(text);
+    let textStr = String(text);
     
-    return textStr
-      .replace(/<[^>]*>/g, '') // Remove HTML tags
-      .replace(/\s+/g, ' ') // Normalize whitespace
-      .trim();
+    // Convert <a> tags to markdown-style links [text](url) to preserve them
+    textStr = textStr.replace(/<a\s+href=["']([^"']+)["'][^>]*>([^<]+)<\/a>/gi, '[$2]($1)');
+    
+    // Remove all other HTML tags but keep the content
+    textStr = textStr.replace(/<[^>]*>/g, '');
+    
+    // Normalize whitespace
+    textStr = textStr.replace(/\s+/g, ' ');
+    
+    return textStr.trim();
   }
 
   /**
